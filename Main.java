@@ -7,13 +7,17 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
-public class MainProduct extends JFrame {
+/*
+ * Student Name: Ricky Wong
+ * Student ID: N01581738
+ * Section: IGA
+ * Logic: Class for the main GUI
+ */
 
-	private static int WINDOW_HEIGHT = 400;
-	private static int WINDOW_WIDTH = 500;
-	private static String TITLE = "Main Product GUI";
-	private static String STR_MANIPULATE = "Add/Update";
-	private static String STR_QUERY = "Find/Display";
+public class Main extends JFrame {
+
+	private static final String STR_MANIPULATE = "Add/Update";
+	private static final String STR_QUERY = "Find/Display";
 
 	// GUI components
 	JFrame frame;
@@ -26,17 +30,18 @@ public class MainProduct extends JFrame {
 	JLabel mainText;
 
 	public static void main(String[] args) {
-		new MainProduct();
+		new Main();
 	}
 
-	public MainProduct() {
-		createGUI();
+	public Main() {
+		createUI();
 		setFrameConfig();
 		attachEventListeners();
 	}
 
-	private void createGUI() {
-		frame = new JFrame(TITLE);
+	private void createUI() {
+		String title = "Product Main GUI";
+		frame = new JFrame(title);
 		mb = new JMenuBar();
 
 		menuFile = new JMenu("File");
@@ -64,6 +69,8 @@ public class MainProduct extends JFrame {
 
 		// Configure the frame
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		int WINDOW_WIDTH = 500;
+		int WINDOW_HEIGHT = 400;
 		frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(true);
