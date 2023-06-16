@@ -1,12 +1,13 @@
-package assignment2;
+package assignment2_ProductManagementSystem;
 
 import java.io.*;
 import java.util.*;
 
 public class ProductManager {
-	
+
 	private List<Product> products=new ArrayList<>();
-	
+
+
 	//WiteFile
 	public void WiteFile(List<Product> products) throws IOException,ClassNotFoundException {
 		try(ObjectOutputStream output= new ObjectOutputStream(new FileOutputStream("products.dat"))){
@@ -14,9 +15,9 @@ public class ProductManager {
 				output.writeObject(product);
 			}
 		}
-		
+
 	}
-	
+
 	//ReadFile
 	public List<Product> ReadFile() throws IOException, ClassNotFoundException {
 		List<Product> ReadProducts=new ArrayList<>();
@@ -28,28 +29,28 @@ public class ProductManager {
 				break;}
 			}
 		}
-		
+
 		return ReadProducts;
 	}
-	
+
 	public void addProduct(Product prodcuct) throws ClassNotFoundException, IOException {
 		products.add(prodcuct);
 		WiteFile(products);
 	}
-	
+
 	//PrintAll
 	public void PrintList(List<Product> products) {
-		
+
 		for (Product product:products) {
 			System.out.println(product);
 		}
-		
+
 	}
 
 	// DisplayByRange
 	public List<Product> DisplayByRange(double priceFrom,double priceTo) throws ClassNotFoundException, IOException {
 		List<Product> priceRangeList=ReadFile();
-		
+
 		for (int i=0;i<priceRangeList.size();i++) {
 			Product product=priceRangeList.get(i);
 			if ((product.getUnitPrice()< priceFrom) || (product.getUnitPrice()> priceTo)){
@@ -57,7 +58,7 @@ public class ProductManager {
 				i--;
 			}
 		}
-		
+
 		return priceRangeList;
 	}
 

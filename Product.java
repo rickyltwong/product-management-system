@@ -1,50 +1,40 @@
 package assignment2_ProductManagementSystem;
 
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 /*
- * Student Name: Ricky Wong
- * Student ID: N01581738
+ * Student Name: Ricky Wong, Xianbin Bian
+ * Student ID: N01581738, N01553051
  * Section: IGA
- * Logic: This class is used to store product information.
+ * Logic: This class is used to store product information and perform validation.
  */
 
-public class Product implements Serializable {
-    private int productID;
+public class Product {
+    private int id;
     private String name;
     private String description;
     private int quantity;
     private double unitPrice;
 
-    public Product(int productID, String name, String description, int quantity, double unitPrice) {
+    public Product(){}; // Default constructor
 
-        // Get the next product ID
-//        try {
-//
-//            // TODO - build a logic to read the lastProduct id in the file and increment it by 1
-//
-//            // TODO - write the product to the file
-//
-//
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-
-        setProductID(productID);
+    public Product(int id, String name, String description, int quantity, double unitPrice) {
+        setId(id);
         setName(name);
         setDescription(description);
         setQuantity(quantity);
         setUnitPrice(unitPrice);
     }
 
-    public int getProductID() {
-        return productID;
+    public int getId() {
+        return id;
     }
 
-    public void setProductID(int productID) {
-        this.productID = productID;
+    public void setId(int id) {
+        // ID cannot be negative
+        if (id < 0) {
+            throw new IllegalArgumentException("ID cannot be negative");
+        } else this.id = id;
     }
 
     public String getName() {
@@ -52,7 +42,10 @@ public class Product implements Serializable {
     }
 
     public void setName(String name) {
-        this.name = name.toUpperCase();
+        // Name cannot be empty
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be empty");
+        } else this.name = name;
     }
 
     public String getDescription() {
@@ -60,7 +53,7 @@ public class Product implements Serializable {
     }
 
     public void setDescription(String description) {
-        this.description = description.toUpperCase();
+        this.description = description;
     }
 
     public int getQuantity() {
@@ -68,6 +61,7 @@ public class Product implements Serializable {
     }
 
     public void setQuantity(int quantity) {
+        // Quantity cannot be negative
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");
         } else {
@@ -80,6 +74,7 @@ public class Product implements Serializable {
     }
 
     public void setUnitPrice(double unitPrice) {
+        // UnitPrice cannot be negative
         if (unitPrice < 0) {
             throw new IllegalArgumentException("UnitPrice cannot be negative");
         } else {
@@ -89,7 +84,8 @@ public class Product implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("%-10d %-20s %-20s %-10d %-10.2f", productID, name, description, quantity, unitPrice);
+        return "Product [ID=" + id + ", name=" + name + ", description=" + description + ", quantity=" + quantity
+                + ", unitPrice=" + unitPrice + "]";
     }
 
 }

@@ -1,7 +1,10 @@
 package assignment2_ProductManagementSystem;
 
 import javax.swing.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,24 +12,29 @@ import java.util.Map;
  * Student Name: Ricky Wong
  * Student ID: N01581738
  * Section: IGA
- * Logic: This class is used to add or update a product.
+ * Logic: This class is the GUI class with functionalities like adding and updating a product.
  */
 
 public class AddOrUpdate {
-    private static final String filePath = "src\\assignment2_ProductManagementSystem\\products.bin";
-    private static int nextProductId;
-    private static int lastProductId = -1;
-
     JFrame frame;
     Map<String, JButton> buttonsMap;
+    Map<String, JLabel> labelsMap;
+    Map<String, JTextField> textFieldsMap;
+    JTextArea txtDescription;
+
+    private static final int NAME_MAX_LENGTH = 20;
+    private static final int DESCRIPTION_MAX_LENGTH = 100;
 
     public AddOrUpdate() {
         createUI();
+        setFrameConfig();
+        attachEventListeners();
     }
 
     private void createUI() {
         frame = new JFrame("Add/Update Product");
         frame.setLayout(null);
+
         // Create labels and text fields
         JLabel lblProductId = new JLabel("Product ID");
         JLabel lblName = new JLabel("Name");
@@ -35,10 +43,23 @@ public class AddOrUpdate {
         JLabel lblPrice = new JLabel("Unit Price");
         JTextField txtProductId = new JTextField();
         JTextField txtName = new JTextField(100);
-        JTextArea txtDescription = new JTextArea();
+        txtDescription = new JTextArea();
         txtDescription.setLineWrap(true);
         JTextField txtQuantity = new JTextField();
         JTextField txtPrice = new JTextField();
+
+        labelsMap = new HashMap<>();
+        labelsMap.put("Product ID", lblProductId);
+        labelsMap.put("Name", lblName);
+        labelsMap.put("Description", lblDescription);
+        labelsMap.put("Quantity in hand", lblQuantity);
+        labelsMap.put("Unit Price", lblPrice);
+
+        textFieldsMap = new HashMap<>();
+        textFieldsMap.put("Product ID", txtProductId);
+        textFieldsMap.put("Name", txtName);
+        textFieldsMap.put("Quantity in hand", txtQuantity);
+        textFieldsMap.put("Unit Price", txtPrice);
 
         // Create buttons
         JButton btnAdd = new JButton("Add");
@@ -75,23 +96,55 @@ public class AddOrUpdate {
         btnLast.setBounds(470, 230, 120, 20);
 
         // Add to frame
-        frame.add(lblProductId);
-        frame.add(lblName);
-        frame.add(lblDescription);
-        frame.add(lblQuantity);
-        frame.add(lblPrice);
-        frame.add(txtProductId);
-        frame.add(txtName);
+        for (JLabel label : labelsMap.values()) {
+            frame.add(label);
+        }
+
+        for (JTextField textField : textFieldsMap.values()) {
+            frame.add(textField);
+        }
+
         frame.add(txtDescription);
-        frame.add(txtQuantity);
-        frame.add(txtPrice);
 
         for (JButton button : buttonsMap.values()) {
             frame.add(button);
         }
+    }
+
+    private void setFrameConfig() {
+
+        // Configure the frame
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        int WINDOW_WIDTH = 650;
+        int WINDOW_HEIGHT = 350;
+        frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(true);
+        frame.setVisible(true);
+    }
+
+    private void attachEventListeners() {
+
+        // Add key listener to limit the length of name to 10 characters
+        JTextField tfName = textFieldsMap.get("Name");
+        tfName.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+                if (tfName.getText().length() >= NAME_MAX_LENGTH) // limit to 20 characters
+                    e.consume();
+            }
+        });
+
+        // Add key listener to limit the length of description to 100 characters
+        txtDescription.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+                if (txtDescription.getText().length() >= DESCRIPTION_MAX_LENGTH) // limit to 100 characters
+                    e.consume();
+            }
+        });
+
 
         /*
-         Add action listeners:
+         Other action listeners:
 
          Add - should add the information of new product to the file, product ID should be unique, quantity in hand and unit price should be a number and above 0 and name is required.
 
@@ -106,85 +159,72 @@ public class AddOrUpdate {
          Update – should update the information of currently displayed record on the GUI.
         */
 
-        btnAdd.addActionListener(evt -> {
-
-            class AppendableObjectOutputStream extends ObjectOutputStream {
-                public AppendableObjectOutputStream(OutputStream out) throws IOException {
-                    super(out);
-                }
-
-                @Override
-                protected void writeStreamHeader() throws IOException {
-                }
+        buttonsMap.get("Add").addActionListener(evt -> {
+            String name = textFieldsMap.get("Product ID").getText();
+            String description = txtDescription.getText();
+            // Pad the name and description with spaces to make them 20 and 100 characters long respectively
+            if (name.length() < NAME_MAX_LENGTH) {
+                name = String.format("%-" + NAME_MAX_LENGTH + "s", name);
+            }
+            if (description.length() < DESCRIPTION_MAX_LENGTH) {
+                description = String.format("%-" + DESCRIPTION_MAX_LENGTH + "s", description);
             }
 
+            int productId = Integer.parseInt(textFieldsMap.get("Product ID").getText());
+            int quantity = Integer.parseInt(textFieldsMap.get("Quantity in hand").getText());
+            double price = Double.parseDouble(textFieldsMap.get("Unit Price").getText());
 
+            // Check if there is duplicate id
+            boolean isDuplicate = false;
             try {
-                int productId = Integer.parseInt(txtProductId.getText());
-                String name = txtName.getText();
-                String description = txtDescription.getText();
-                int quantity = Integer.parseInt(txtQuantity.getText());
-                double unitPrice = Double.parseDouble(txtPrice.getText());
-
-                File file = new File(filePath);
-                boolean fileExists = file.exists() && file.length() > 0;
-                FileOutputStream fos = new FileOutputStream(file, true);
-                ObjectOutputStream oos = fileExists
-                        ? new AppendableObjectOutputStream(fos)
-                        : new ObjectOutputStream(fos);
-
-
-                Product product = new Product(productId, name, description, quantity, unitPrice);
-                oos.writeObject(product);
-                oos.close();
-                fos.close();
-
-
-                if (!file.exists()) {
-                    System.out.println("The file is empty or does not exist.");
-                    return;
-                }
-
-                try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-                    while (true) {
-                        try {
-                            Product productRead = (Product) ois.readObject();
-                            System.out.println(productRead);
-                        } catch (EOFException ex) {
-                            break;
-                        }
-                    }
-                } catch (IOException | ClassNotFoundException ex) {
-                    ex.printStackTrace();
-                }
-
-
-                JOptionPane.showMessageDialog(null, "Product added successfully");
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(null, "Invalid input");
-            } catch (IllegalArgumentException ex) {
-                JOptionPane.showMessageDialog(null, ex.getMessage());
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
+                isDuplicate = FileHelper.isDuplicateId(productId);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+
+            if (isDuplicate) {
+                JOptionPane.showMessageDialog(frame, "Product ID already exists");
+                return;
+            }
+
+            // Write the product into file
+            Product product = new Product(productId, name, description, quantity, price);
+            try {
+                FileHelper.addProduct(product);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            // Print out All products (for testing)
+            try {
+                FileHelper.printAllProducts();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+        });
+
+        buttonsMap.get("Update").addActionListener(evt -> {
+
+        });
+
+        buttonsMap.get("First").addActionListener(evt -> {
+
+        });
+
+        buttonsMap.get("Previous").addActionListener(evt -> {
+
+        });
+
+        buttonsMap.get("Next").addActionListener(evt -> {
+
+        });
+
+        buttonsMap.get("Last").addActionListener(evt -> {
+
         });
 
 
-        // Configure the frame
-        setFrameConfig();
-
-    }
-
-    private void setFrameConfig() {
-
-        // Configure the frame
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        int WINDOW_WIDTH = 650;
-        int WINDOW_HEIGHT = 350;
-        frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(true);
-        frame.setVisible(true);
     }
 
     // Main method for testing
