@@ -124,7 +124,7 @@ public class AddOrUpdate {
 
     private void attachEventListeners() {
 
-        // Add key listener to limit the length of name to 10 characters
+        // Add key listener to limit the length of name to 20 characters
         JTextField tfName = textFieldsMap.get("Name");
         tfName.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
@@ -143,7 +143,7 @@ public class AddOrUpdate {
 
 
         /*
-         Other action listeners:
+         Action listeners for main functions:
 
          Add - should add the information of new product to the file, product ID should be unique, quantity in hand and unit price should be a number and above 0 and name is required.
 
@@ -159,7 +159,8 @@ public class AddOrUpdate {
         */
 
         buttonsMap.get("Add").addActionListener(evt -> {
-            String name = textFieldsMap.get("Product ID").getText();
+
+            String name = textFieldsMap.get("Name").getText();
             String description = txtDescription.getText();
             // Pad the name and description with spaces to make them 20 and 100 characters long respectively
             if (name.length() < NAME_MAX_LENGTH) {
@@ -204,6 +205,24 @@ public class AddOrUpdate {
         });
 
         buttonsMap.get("Update").addActionListener(evt -> {
+
+            String name = textFieldsMap.get("Name").getText();
+            String description = txtDescription.getText();
+            // Pad the name and description with spaces to make them 20 and 100 characters long respectively
+            if (name.length() < NAME_MAX_LENGTH) {
+                name = String.format("%-" + NAME_MAX_LENGTH + "s", name);
+            }
+            if (description.length() < DESCRIPTION_MAX_LENGTH) {
+                description = String.format("%-" + DESCRIPTION_MAX_LENGTH + "s", description);
+            }
+
+            int productId = Integer.parseInt(textFieldsMap.get("Product ID").getText());
+            int quantity = Integer.parseInt(textFieldsMap.get("Quantity in hand").getText());
+            double price = Double.parseDouble(textFieldsMap.get("Unit Price").getText());
+
+            // get the result product from the queried Product id
+            // no product found -> error dialog
+            // yes -> overwrite the product
 
         });
 

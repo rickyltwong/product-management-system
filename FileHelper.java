@@ -31,7 +31,7 @@ public final class FileHelper {
 
         DataOutputStream dos = getDataOutputStream();
         dos.writeInt(product.getId()); // 4 bytes
-        dos.writeUTF(product.getName()); // 50 bytes
+        dos.writeUTF(product.getName()); // 20 bytes
         dos.writeUTF(product.getDescription()); // 100 bytes
         dos.writeInt(product.getQuantity()); // 4 bytes
         dos.writeDouble(product.getUnitPrice()); // 8 bytes
@@ -67,6 +67,10 @@ public final class FileHelper {
         }
         return false;
     }
+
+    // Get Product from Product ID
+//    public static Product getProductFromFile(int productId) throws IOException {
+//    }
 
     // Print out all products in the file for testing purpose
     public static void printAllProducts() throws IOException {
