@@ -1,4 +1,4 @@
-package assignment2;
+package assignment2_ProductManagementSystem;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -87,7 +87,7 @@ public class FindOrDisplay extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String name= KeywordText.getText();
-				ProductManager.DisplayByName(name);
+//				ProductManager.DisplayByName(name);
 				
 			}
 		};
