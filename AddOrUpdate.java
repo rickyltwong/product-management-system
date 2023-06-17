@@ -1,4 +1,7 @@
-package ProductManagementSystem;
+package assignment2;
+
+import assignment2.Product;
+import assignment2.ProductFileHandler;
 
 import javax.swing.*;
 
@@ -6,12 +9,13 @@ import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 /*
- * Student Name: Ricky Wong
- * Student ID: N01581738
+ * Student Name: Ricky Wong, Emma Zhang
+ * Student ID: N01581738, N01587845
  * Section: IGA
  * Logic: This class is the GUI class with functionalities like adding and updating a product.
  */
@@ -50,7 +54,7 @@ public class AddOrUpdate {
         txtDescription.setLineWrap(true);
         JTextField txtQuantity = new JTextField();
         JTextField txtPrice = new JTextField();
-        
+
         JLabel prompt = new JLabel();
 
         labelsMap = new HashMap<>();
@@ -59,7 +63,7 @@ public class AddOrUpdate {
         labelsMap.put("Description", lblDescription);
         labelsMap.put("Quantity in hand", lblQuantity);
         labelsMap.put("Unit Price", lblPrice);
-        labelsMap.put("", prompt);
+        labelsMap.put("prompt", prompt);
 
         textFieldsMap = new HashMap<>();
         textFieldsMap.put("Product ID", txtProductId);
@@ -133,7 +137,7 @@ public class AddOrUpdate {
 
     private void attachEventListeners() {
 
-        // Add key listener to limit the length of name to 10 characters
+        // Add key listener to limit the length of name to 20 characters
         JTextField tfName = textFieldsMap.get("Name");
         tfName.addKeyListener(new KeyAdapter() {
             public void keyTyped(KeyEvent e) {
@@ -152,20 +156,8 @@ public class AddOrUpdate {
 
 
         /*
-         Other action listeners:
-
-         Add - should add the information of new product to the file, product ID should be unique, quantity in hand and unit price should be a number and above 0 and name is required.
-
-         First - Should read the first record stored in the file and display the details of it in the controls
-
-         Previous – if possible, should read the previous record to the current record stored in the file and display the details of it in the controls.
-
-         Next – if possible, should read the next record to the current record stored in the file and display the details of it in the controls.
-
-         Last – Should read the last record stored in the file and display the details of it in the controls.
-
-         Update – should update the information of currently displayed record on the GUI.
-        */
+         * Add, First, Previous, Next, Last, Update Buttons action listeners
+         */
 
         buttonsMap.get("Add").addActionListener(evt -> {
 
@@ -178,7 +170,7 @@ public class AddOrUpdate {
             // Check if there is duplicate id (in-place search)
             int pos = -1;
             try {
-                pos = FileHelper.getProductBytePosition(productId);
+                pos = ProductFileHandler.getProductBytePosition(productId);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -191,129 +183,174 @@ public class AddOrUpdate {
             // Write the product into file
             Product product = new Product(productId, name, description, quantity, price);
             try {
-                FileHelper.addProduct(product);
+                ProductFileHandler.addProduct(product);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             // Print out All products (for testing)
+            System.out.println("Record Added!");
+            labelsMap.get("prompt").setText("Record Added!");
             try {
-                FileHelper.printAllProducts();
+                ProductFileHandler.printAllProducts();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
         });
-   
-        
 
         buttonsMap.get("Update").addActionListener(evt -> {
 
+            int productId = Integer.parseInt(textFieldsMap.get("Product ID").getText());
+            String name = textFieldsMap.get("Name").getText();
+            String description = txtDescription.getText();
+            int quantity = Integer.parseInt(textFieldsMap.get("Quantity in hand").getText());
+            double price = Double.parseDouble(textFieldsMap.get("Unit Price").getText());
+
+            try {
+                ArrayList<Product> products = ProductFileHandler.getProductListFromFile();
+                Product productToUpdate = findProductInList(products, productId);
+
+                if (productToUpdate == null) {
+                    JOptionPane.showMessageDialog(frame, "Product ID not found");
+                    return;
+                }
+
+                // Update the product
+                productToUpdate.setName(name);
+                productToUpdate.setDescription(description);
+                productToUpdate.setQuantity(quantity);
+                productToUpdate.setUnitPrice(price);
+
+                DataOutputStream dos = ProductFileHandler.getDataOutputStream();
+                for (Product product : products) {
+                    ProductFileHandler.addProduct(product);
+                }
+
+                // Close the data output stream
+                dos.close();
+
+                // Print out All products (for testing)
+                System.out.println("Record Updated!");
+                labelsMap.get("prompt").setText("Record Updated!");
+                ProductFileHandler.printAllProducts();
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         buttonsMap.get("First").addActionListener(evt -> {
-        	labelsMap.get("").setText("");
-        	try {
-				firstProduct();
-			} catch (IOException e1) {
-				
-				e1.printStackTrace();
-			}
-        	displayRecord();
-         
+            labelsMap.get("prompt").setText("");
+            try {
+                firstProduct();
+            } catch (IOException e1) {
+
+                e1.printStackTrace();
+            }
+            displayRecord();
+
         });
 
         buttonsMap.get("Previous").addActionListener(evt -> {
-        	labelsMap.get("").setText("");
-        	try {
-				previousProduct();
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-        	displayRecord();
+            labelsMap.get("prompt").setText("");
+            try {
+                previousProduct();
+            } catch (Exception e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            displayRecord();
         });
-        
+
 
         buttonsMap.get("Next").addActionListener(evt -> {
-        	labelsMap.get("").setText("");
-        	try {
-				nextProduct();
-				if (product != null) {
-					displayRecord();
+            labelsMap.get("prompt").setText("");
+            try {
+                nextProduct();
+                if (product != null) {
+                    displayRecord();
 
-				}
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				labelsMap.get("").setText("An error occurred: " + e1.getMessage());
-			}
-        	
+                }
+            } catch (Exception e1) {
+                e1.printStackTrace();
+                labelsMap.get("prompt").setText("An error occurred: " + e1.getMessage());
+            }
+
         });
 
         buttonsMap.get("Last").addActionListener(evt -> {
-        	labelsMap.get("").setText("");
-        	try {
-				lastProduct();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-        	displayRecord();
+            labelsMap.get("prompt").setText("");
+            try {
+                lastProduct();
+            } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+            displayRecord();
         });
-        
-    }
-    public void displayRecord() {
-    	textFieldsMap.get("Product ID").setText(String.valueOf(product.getId()));
-    	textFieldsMap.get("Name").setText(product.getName());
-       	txtDescription.setText(product.getDescription());
-       	textFieldsMap.get("Quantity in hand").setText(String.valueOf(product.getQuantity()));
-       	textFieldsMap.get("Unit Price").setText(String.valueOf(product.getUnitPrice())); 
-    }
-  	public void firstProduct() throws IOException {
-        currentProduct = 0;
-       	product = FileHelper.readProduct(currentProduct);   	
-    }
-  	
-  	public void previousProduct() throws IOException   {
-    	if (currentProduct > 0) {
-    		currentProduct--;
-    		product = FileHelper.readProduct(currentProduct);
-    		
-    	}
-    	else {
-    		product = FileHelper.readProduct(currentProduct);
-    		labelsMap.get("").setText("This is the first record");
-    	}
-    	
-    }
-  	 public void nextProduct() throws Exception  {
-     	if (currentProduct < FileHelper.getProductsCount() - 1) {
-     		currentProduct++;
-     		product = FileHelper.readProduct(currentProduct); 
-     		if (product == null || product.getName().isEmpty()) {
-     			throw new Exception("Product not found");
-     		}
-     	}
-     	else {
-     		labelsMap.get("").setText("This the last record");
-     		product = FileHelper.readProduct(currentProduct);
-     		if (product == null || product.getName().isEmpty()) {
-     			throw new Exception("Product not found");
-     		}
-     	}	
-     		
-     }
-  	  public void lastProduct() throws IOException {
-      	currentProduct = FileHelper.getProductsCount() - 1;
-      	product = FileHelper.readProduct(currentProduct); 
 
-      }
+    }
+
+    public void displayRecord() {
+        textFieldsMap.get("Product ID").setText(String.valueOf(product.getId()));
+        textFieldsMap.get("Name").setText(product.getName().trim());
+        txtDescription.setText(product.getDescription().trim());
+        textFieldsMap.get("Quantity in hand").setText(String.valueOf(product.getQuantity()));
+        textFieldsMap.get("Unit Price").setText(String.valueOf(product.getUnitPrice()));
+    }
+
+    public void firstProduct() throws IOException {
+        currentProduct = 0;
+        product = ProductFileHandler.readProduct(currentProduct);
+    }
+
+    public void previousProduct() throws IOException {
+        if (currentProduct > 0) {
+            currentProduct--;
+            product = ProductFileHandler.readProduct(currentProduct);
+
+        } else {
+            product = ProductFileHandler.readProduct(currentProduct);
+            labelsMap.get("prompt").setText("This is the first record");
+        }
+
+    }
+
+    public void nextProduct() throws Exception {
+        if (currentProduct < ProductFileHandler.getProductsCount() - 1) {
+            currentProduct++;
+            product = ProductFileHandler.readProduct(currentProduct);
+            if (product == null || product.getName().isEmpty()) {
+                throw new Exception("Product not found");
+            }
+        } else {
+            labelsMap.get("prompt").setText("This the last record");
+            product = ProductFileHandler.readProduct(currentProduct);
+            if (product == null || product.getName().isEmpty()) {
+                throw new Exception("Product not found");
+            }
+        }
+
+    }
+
+    public void lastProduct() throws IOException {
+        currentProduct = ProductFileHandler.getProductsCount() - 1;
+        product = ProductFileHandler.readProduct(currentProduct);
+
+    }
+
+    public static Product findProductInList(ArrayList<Product> products, int productId) {
+        for (Product product : products) {
+            if (product.getId() == productId) {
+                return product;
+            }
+        }
+        return null;
+    }
 
     // Main method for testing
     public static void main(String[] args) throws IOException {
         AddOrUpdate addOrUpdate = new AddOrUpdate();
-   
-		
-
     }
 }

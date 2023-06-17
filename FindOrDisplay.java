@@ -1,4 +1,4 @@
-package assignment2_ProductManagementSystem;
+package assignment2;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;

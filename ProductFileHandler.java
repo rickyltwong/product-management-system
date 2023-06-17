@@ -1,11 +1,11 @@
-package assignment2_ProductManagementSystem;
+package assignment2;
 
 import java.io.*;
 import java.util.ArrayList;
 
 /*
  * Student Name: Emma Zhang, Xiaoying Bian, Ricky Wong
- * Student ID: N01587845, 01553051, N01581738
+ * Student ID: N01587845, N01553051, N01581738
  * Section: IGA
  * Logic: This class is the helper class for file operations.
  */
@@ -15,9 +15,12 @@ public final class ProductFileHandler {
     }
 
     // File path: Please change the path to your own path
-    private static final String filePath = "src\\assignment2_ProductManagementSystem\\products.dat";
+    private static final String filePath = "src\\assignment2\\products.dat";
+    private int currentProduct;
 
     private static final File file = new File(filePath);
+
+    private static final int RECORD_SIZE = 140;
 
     public static DataOutputStream getDataOutputStreamWithAppend() throws IOException {
         return new DataOutputStream(new FileOutputStream(file, true));
@@ -103,10 +106,13 @@ public final class ProductFileHandler {
     }
 
     private static void skipProduct(DataInputStream dis) throws IOException {
-        dis.skipBytes(22); // Skip name (2 bytes of length infomration + 20 bytes of name)
-        dis.skipBytes(102); // Skip description (2 bytes of length infomration + 100 bytes of description)
-        dis.skipBytes(4); // Skip quantity
-        dis.skipBytes(8); // Skip unit price
+        /*
+         * Skip name 22 bytes (2 bytes of length infomration + 20 bytes of name)
+         * Skip description 102 bytes (2 bytes of length infomration + 100 bytes of description)
+         * Skip quantity with 4 bytes
+         * Skip unit Price with 8 bytes
+         */
+        dis.skipBytes(RECORD_SIZE - 4);
     }
 
     // Print out all products in the file for testing purpose
@@ -114,6 +120,32 @@ public final class ProductFileHandler {
         ArrayList<Product> productList = getProductListFromFile();
         for (Product product : productList) {
             System.out.println(product);
+        }
+    }
+
+    public static int getProductsCount() {
+        int productsCount;
+
+        File file = new File(filePath);
+        productsCount = (int) (file.length() / RECORD_SIZE);
+        return productsCount;
+    }
+
+    public static Product readProduct(int currentProduct) throws IOException {
+        try (DataInputStream input = new DataInputStream(new FileInputStream(filePath))) {
+            //skip over previous records
+            input.skip(currentProduct * RECORD_SIZE);
+
+            //read current product record
+            int productID = input.readInt();
+            String name = input.readUTF();
+            String description = input.readUTF();
+            int qty = input.readInt();
+            double price = input.readDouble();
+
+            //create a new instance
+            return new Product(productID, name, description, qty, price);
+
         }
     }
 }
