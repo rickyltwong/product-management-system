@@ -13,7 +13,6 @@ public class FindOrDisplay extends JFrame{
 	
 	private static String TITLE = "Find/Display Products";
 	
-	JFrame frame;
 	private JPanel PriceRangePanel;
 	private JPanel KeywordPanel;
 	private JPanel AllPanel;
@@ -29,20 +28,31 @@ public class FindOrDisplay extends JFrame{
 	private JTextField PriceRangeTo;
 	private JTextField KeywordText;
 	private JTextArea TextDisplay;
-	ProductManager product_manager=new ProductManager();
 	
 	public FindOrDisplay() {
 		
-		setLayout(new GridLayout(4,1));
 		setTitle(TITLE);
+		Container contentPane = getContentPane();
+		setLayout(new BoxLayout(contentPane,BoxLayout.Y_AXIS));
 		CreatPriceRange();
 		CreateKeyword();
+		CreateAll();
+		CreateTextArea();
 		
-		CreateLayout();
+		ButtonGroup group=new ButtonGroup();
+		group.add(AllButton);
+		group.add(KeywordButton);
+		group.add(PriceRangeButton);
+		
+		add(PriceRangePanel);
+		add(KeywordPanel);
+		add(AllPanel);
+		add(TextDisplayPanel);
 	}
 	
+	
 	public void CreatPriceRange() {
-		PriceRangePanel=new JPanel();
+		PriceRangePanel=new JPanel(new FlowLayout(FlowLayout.LEFT));
 		PriceRangeButton=new JRadioButton("Price Range");
 		PriceRangeFrom=new JTextField(8);
 		PriceRangeTo=new JTextField(8);
@@ -61,8 +71,9 @@ public class FindOrDisplay extends JFrame{
 				double priceTo=Double.parseDouble(PriceRangeTo.getText());
 				List<Product> products=new ArrayList<>();
 				try {
-					products=product_manager.DisplayByRange(priceFrom,priceTo);
-					product_manager.PrintList(products);
+					products=DisplayByRange(priceFrom,priceTo);
+					for (Product product:products)
+						TextDisplay.append(product.toString()+"\n");
 					
 				} catch (ClassNotFoundException | IOException e1) {
 					// TODO Auto-generated catch block
@@ -76,7 +87,7 @@ public class FindOrDisplay extends JFrame{
 	}
 	
 	public void CreateKeyword() {
-		KeywordPanel=new JPanel();
+		KeywordPanel=new JPanel(new FlowLayout(FlowLayout.LEFT));
 		KeywordButton=new JRadioButton("Keyword");
 		KeywordText=new JTextField(8);
 		
@@ -87,17 +98,78 @@ public class FindOrDisplay extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String name= KeywordText.getText();
-//				ProductManager.DisplayByName(name);
+				try {
+					Product product=DisplayByName(name);
+					if (product==null)
+						TextDisplay.setText("No item in the list.");
+					else
+						TextDisplay.append(product.toString()+"\n");
+				} catch (ClassNotFoundException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				
 			}
 		};
 		
-		KeywordButton.addActionListener(a1);
+		KeywordText.addActionListener(a1);
 	}
 	
-	public void CreateLayout() {
-		add(PriceRangePanel);
-		add(KeywordPanel);
+	public void CreateAll() {
+		AllPanel=new JPanel(new FlowLayout(FlowLayout.LEFT));
+		AllButton=new JRadioButton("All");
+		AllPanel.add(AllButton);
+		
+		ActionListener a1=new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					List<Product> products=ProductFileHandler.getProductListFromFile();
+					for (Product product:products)
+						TextDisplay.append(product.toString()+"\n");
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		
+		};
+		AllButton.addActionListener(a1);
 	}
+	
+	public void CreateTextArea() {
+		TextDisplayPanel = new JPanel(new BorderLayout());
+	    TextDisplay = new JTextArea();
+	    TextDisplay.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+	    TextDisplayPanel.add(TextDisplay, BorderLayout.CENTER);
+		
+	}
+	// DisplayByRange
+		public List<Product> DisplayByRange(double priceFrom,double priceTo) throws ClassNotFoundException, IOException {
+			List<Product> priceRangeList=ProductFileHandler.getProductListFromFile();
+
+			for (int i=0;i<priceRangeList.size();i++) {
+				Product product=priceRangeList.get(i);
+				if ((product.getUnitPrice()< priceFrom) || (product.getUnitPrice()> priceTo)){
+					priceRangeList.remove(i);
+					i--;
+				}
+			}
+			return priceRangeList;
+			
+		}
+		
+		// DisplayByName
+		public Product DisplayByName(String name) throws IOException,ClassNotFoundException {
+			List<Product> products=ProductFileHandler.getProductListFromFile();
+			
+			for (int i=0;i<products.size();i++) {
+				Product product=products.get(i);
+				if (product.getName().equals(name)) {
+					return product;
+				}
+			}
+			return null;
+		}
 
 }
