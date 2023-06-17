@@ -219,11 +219,7 @@ public class AddOrUpdate {
 				
 				e1.printStackTrace();
 			}
-        	textFieldsMap.get("Product ID").setText(String.valueOf(product.getId()));
-        	textFieldsMap.get("Name").setText(product.getName());
-           	txtDescription.setText(product.getDescription());
-           	textFieldsMap.get("Quantity in hand").setText(String.valueOf(product.getQuantity()));
-           	textFieldsMap.get("Unit Price").setText(String.valueOf(product.getUnitPrice()));
+        	displayRecord();
          
         });
 
@@ -235,12 +231,7 @@ public class AddOrUpdate {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-        	textFieldsMap.get("Product ID").setText(String.valueOf(product.getId()));
-        	textFieldsMap.get("Name").setText(product.getName());
-           	txtDescription.setText(product.getDescription());
-           	textFieldsMap.get("Quantity in hand").setText(String.valueOf(product.getQuantity()));
-           	textFieldsMap.get("Unit Price").setText(String.valueOf(product.getUnitPrice()));       	
-
+        	displayRecord();
         });
         
 
@@ -249,11 +240,7 @@ public class AddOrUpdate {
         	try {
 				nextProduct();
 				if (product != null) {
-					textFieldsMap.get("Product ID").setText(String.valueOf(product.getId()));
-		        	textFieldsMap.get("Name").setText(product.getName());
-		           	txtDescription.setText(product.getDescription());
-		           	textFieldsMap.get("Quantity in hand").setText(String.valueOf(product.getQuantity()));
-		           	textFieldsMap.get("Unit Price").setText(String.valueOf(product.getUnitPrice()));       
+					displayRecord();
 
 				}
 			} catch (Exception e1) {
@@ -271,18 +258,16 @@ public class AddOrUpdate {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-        	textFieldsMap.get("Product ID").setText(String.valueOf(product.getId()));
-        	textFieldsMap.get("Name").setText(product.getName());
-           	txtDescription.setText(product.getDescription());
-           	textFieldsMap.get("Quantity in hand").setText(String.valueOf(product.getQuantity()));
-           	textFieldsMap.get("Unit Price").setText(String.valueOf(product.getUnitPrice()));       
-
+        	displayRecord();
         });
         
-
-
-
-
+    }
+    public void displayRecord() {
+    	textFieldsMap.get("Product ID").setText(String.valueOf(product.getId()));
+    	textFieldsMap.get("Name").setText(product.getName());
+       	txtDescription.setText(product.getDescription());
+       	textFieldsMap.get("Quantity in hand").setText(String.valueOf(product.getQuantity()));
+       	textFieldsMap.get("Unit Price").setText(String.valueOf(product.getUnitPrice())); 
     }
   	public void firstProduct() throws IOException {
         currentProduct = 0;
