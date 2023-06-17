@@ -1,7 +1,5 @@
 package assignment2_ProductManagementSystem;
 
-import java.io.Serializable;
-
 /*
  * Student Name: Ricky Wong, Xianbin Bian
  * Student ID: N01581738, N01553051
@@ -10,13 +8,13 @@ import java.io.Serializable;
  */
 
 public class Product {
-    private int id;
-    private String name;
-    private String description;
-    private int quantity;
-    private double unitPrice;
+    private int id; // 4 bytes
+    private String name; // 20 bytes (assume ASCII characters only)
+    private String description; // 100 bytes (assumed ASCII characters only)
+    private int quantity; // 4 bytes
+    private double unitPrice; // 8 bytes
 
-    public Product(){}; // Default constructor
+    public Product(){} // Default constructor
 
     public Product(int id, String name, String description, int quantity, double unitPrice) {
         setId(id);
@@ -84,7 +82,7 @@ public class Product {
 
     @Override
     public String toString() {
-        return "Product [ID=" + id + ", name=" + name + ", description=" + description + ", quantity=" + quantity
+        return "Product [ID=" + id + ", name=" + name.trim() + ", description=" + description.trim() + ", quantity=" + quantity
                 + ", unitPrice=" + unitPrice + "]";
     }
 

@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -162,27 +163,19 @@ public class AddOrUpdate {
 
             String name = textFieldsMap.get("Name").getText();
             String description = txtDescription.getText();
-            // Pad the name and description with spaces to make them 20 and 100 characters long respectively
-            if (name.length() < NAME_MAX_LENGTH) {
-                name = String.format("%-" + NAME_MAX_LENGTH + "s", name);
-            }
-            if (description.length() < DESCRIPTION_MAX_LENGTH) {
-                description = String.format("%-" + DESCRIPTION_MAX_LENGTH + "s", description);
-            }
-
             int productId = Integer.parseInt(textFieldsMap.get("Product ID").getText());
             int quantity = Integer.parseInt(textFieldsMap.get("Quantity in hand").getText());
             double price = Double.parseDouble(textFieldsMap.get("Unit Price").getText());
 
-            // Check if there is duplicate id
-            boolean isDuplicate = false;
+            // Check if there is duplicate id (in-place search)
+            int pos = -1;
             try {
-                isDuplicate = FileHelper.isDuplicateId(productId);
+                pos = ProductFileHandler.getProductBytePosition(productId);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
-            if (isDuplicate) {
+            if (pos != -1) {
                 JOptionPane.showMessageDialog(frame, "Product ID already exists");
                 return;
             }
@@ -190,14 +183,14 @@ public class AddOrUpdate {
             // Write the product into file
             Product product = new Product(productId, name, description, quantity, price);
             try {
-                FileHelper.addProduct(product);
+                ProductFileHandler.addProduct(product);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
             // Print out All products (for testing)
             try {
-                FileHelper.printAllProducts();
+                ProductFileHandler.printAllProducts();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -206,24 +199,41 @@ public class AddOrUpdate {
 
         buttonsMap.get("Update").addActionListener(evt -> {
 
+            int productId = Integer.parseInt(textFieldsMap.get("Product ID").getText());
             String name = textFieldsMap.get("Name").getText();
             String description = txtDescription.getText();
-            // Pad the name and description with spaces to make them 20 and 100 characters long respectively
-            if (name.length() < NAME_MAX_LENGTH) {
-                name = String.format("%-" + NAME_MAX_LENGTH + "s", name);
-            }
-            if (description.length() < DESCRIPTION_MAX_LENGTH) {
-                description = String.format("%-" + DESCRIPTION_MAX_LENGTH + "s", description);
-            }
-
-            int productId = Integer.parseInt(textFieldsMap.get("Product ID").getText());
             int quantity = Integer.parseInt(textFieldsMap.get("Quantity in hand").getText());
             double price = Double.parseDouble(textFieldsMap.get("Unit Price").getText());
 
-            // get the result product from the queried Product id
-            // no product found -> error dialog
-            // yes -> overwrite the product
+            try {
+                ArrayList<Product> products = ProductFileHandler.getProductListFromFile();
+                Product productToUpdate = findProductInList(products, productId);
 
+                if (productToUpdate == null) {
+                    JOptionPane.showMessageDialog(frame, "Product ID not found");
+                    return;
+                }
+
+                // Update the product
+                productToUpdate.setName(name);
+                productToUpdate.setDescription(description);
+                productToUpdate.setQuantity(quantity);
+                productToUpdate.setUnitPrice(price);
+
+                DataOutputStream dos = ProductFileHandler.getDataOutputStream();
+                for (Product product : products) {
+                    ProductFileHandler.addProduct(product);
+                }
+
+                // Close the data output stream
+                dos.close();
+
+                // Print out All products (for testing)
+                ProductFileHandler.printAllProducts();
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         buttonsMap.get("First").addActionListener(evt -> {
@@ -245,10 +255,19 @@ public class AddOrUpdate {
 
     }
 
-    // Main method for testing
-    public static void main(String[] args) throws FileNotFoundException {
-        AddOrUpdate addOrUpdate = new AddOrUpdate();
 
+    public static Product findProductInList(ArrayList<Product> products, int productId) {
+        for (Product product : products) {
+            if (product.getId() == productId) {
+                return product;
+            }
+        }
+        return null;
     }
+
+    // Main method for testing
+//    public static void main(String[] args) throws FileNotFoundException {
+//        AddOrUpdate addOrUpdate = new AddOrUpdate();
+//    }
 }
 
