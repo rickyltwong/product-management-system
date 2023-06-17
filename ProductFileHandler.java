@@ -73,7 +73,7 @@ public final class ProductFileHandler {
     }
 
     // Check if there is duplicate Product ID in the file (checking productID in an arraylist)
-    public static boolean isDuplicateId(int productId) throws IOException {
+    public static boolean hasDuplicateId(int productId) throws IOException {
         ArrayList<Product> productList = getProductListFromFile();
         for (Product product : productList) {
             if (product.getId() == productId) {
