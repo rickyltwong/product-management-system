@@ -1,5 +1,6 @@
 package assignment2;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 
@@ -27,8 +28,24 @@ public final class ProductFileHandler {
     }
 
     public static DataInputStream getDataInputStream() throws IOException {
-        return new DataInputStream(new FileInputStream(file));
+        DataInputStream dis = null;
+        try {
+            dis = new DataInputStream(new FileInputStream(file));
+        } catch (FileNotFoundException e) {
+            // Create the file if it does not exist
+            try {
+                if (file.createNewFile()) {
+                    dis = new DataInputStream(new FileInputStream(file));
+                }
+            } catch (IOException ie) {
+                JOptionPane.showMessageDialog(null,"File not Found and failed to create a new file");
+                throw ie;
+            }
+        }
+
+        return dis;
     }
+
 
     // Write the product into file
     public static void addProduct(Product product) throws IOException {
