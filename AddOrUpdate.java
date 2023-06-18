@@ -20,12 +20,12 @@ import java.util.Map;
  * Logic: This class is the GUI class with functionalities like adding and updating a product.
  */
 
-public class AddOrUpdate {
-    JFrame frame;
-    Map<String, JButton> buttonsMap;
-    Map<String, JLabel> labelsMap;
-    Map<String, JTextField> textFieldsMap;
-    JTextArea txtDescription;
+public class AddOrUpdate extends JFrame {
+    private static final String TITLE = "Add/Update Product";
+    private Map<String, JButton> buttonsMap;
+    private Map<String, JLabel> labelsMap;
+    private Map<String, JTextField> textFieldsMap;
+    private JTextArea txtDescription;
 
     private static final int NAME_MAX_LENGTH = 20;
     private static final int DESCRIPTION_MAX_LENGTH = 100;
@@ -39,8 +39,8 @@ public class AddOrUpdate {
     }
 
     private void createUI() {
-        frame = new JFrame("Add/Update Product");
-        frame.setLayout(null);
+        this.setTitle(TITLE);
+        this.setLayout(null);
 
         // Create labels and text fields
         JLabel lblProductId = new JLabel("Product ID");
@@ -109,30 +109,30 @@ public class AddOrUpdate {
 
         // Add to frame
         for (JLabel label : labelsMap.values()) {
-            frame.add(label);
+            this.add(label);
         }
 
         for (JTextField textField : textFieldsMap.values()) {
-            frame.add(textField);
+            this.add(textField);
         }
 
-        frame.add(txtDescription);
+        this.add(txtDescription);
 
         for (JButton button : buttonsMap.values()) {
-            frame.add(button);
+            this.add(button);
         }
     }
 
     private void setFrameConfig() {
 
         // Configure the frame
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         int WINDOW_WIDTH = 650;
         int WINDOW_HEIGHT = 350;
-        frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(true);
-        frame.setVisible(true);
+        this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        this.setLocationRelativeTo(null);
+        this.setResizable(true);
+        this.setVisible(true);
     }
 
     private void attachEventListeners() {
@@ -176,7 +176,7 @@ public class AddOrUpdate {
             }
 
             if (pos != -1) {
-                JOptionPane.showMessageDialog(frame, "Product ID already exists");
+                JOptionPane.showMessageDialog(this, "Product ID already exists");
                 return;
             }
 
@@ -212,7 +212,7 @@ public class AddOrUpdate {
                 Product productToUpdate = findProductInList(products, productId);
 
                 if (productToUpdate == null) {
-                    JOptionPane.showMessageDialog(frame, "Product ID not found");
+                    JOptionPane.showMessageDialog(this, "Product ID not found");
                     return;
                 }
 
