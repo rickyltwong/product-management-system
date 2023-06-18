@@ -17,19 +17,22 @@ import java.util.Map;
  * Student Name: Ricky Wong, Emma Zhang
  * Student ID: N01581738, N01587845
  * Section: IGA
- * Logic: This class is the GUI class with functionalities like adding and updating a product.
+ * Logic: This class is the GUI class with functionalities like adding, updating product and browsing product records.
  */
 
 public class AddOrUpdate extends JFrame {
+
+    // Constants
     private static final String TITLE = "Add/Update Product";
+    private static final int NAME_MAX_LENGTH = 20;
+    private static final int DESCRIPTION_MAX_LENGTH = 100;
+
+    // Variables
+    private static int currentProduct = 0;
     private Map<String, JButton> buttonsMap;
     private Map<String, JLabel> labelsMap;
     private Map<String, JTextField> textFieldsMap;
     private JTextArea txtDescription;
-
-    private static final int NAME_MAX_LENGTH = 20;
-    private static final int DESCRIPTION_MAX_LENGTH = 100;
-    private static int currentProduct = 0;
     Product product;
 
     public AddOrUpdate() {
@@ -37,6 +40,7 @@ public class AddOrUpdate extends JFrame {
         setFrameConfig();
         attachEventListeners();
     }
+
 
     private void createUI() {
         this.setTitle(TITLE);
@@ -54,9 +58,17 @@ public class AddOrUpdate extends JFrame {
         txtDescription.setLineWrap(true);
         JTextField txtQuantity = new JTextField();
         JTextField txtPrice = new JTextField();
-
         JLabel prompt = new JLabel();
 
+        // Create buttons
+        JButton btnAdd = new JButton("Add");
+        JButton btnUpdate = new JButton("Update");
+        JButton btnFirst = new JButton("First");
+        JButton btnPrevious = new JButton("Previous");
+        JButton btnNext = new JButton("Next");
+        JButton btnLast = new JButton("Last");
+
+        // Create maps
         labelsMap = new HashMap<>();
         labelsMap.put("Product ID", lblProductId);
         labelsMap.put("Name", lblName);
@@ -71,13 +83,6 @@ public class AddOrUpdate extends JFrame {
         textFieldsMap.put("Quantity in hand", txtQuantity);
         textFieldsMap.put("Unit Price", txtPrice);
 
-        // Create buttons
-        JButton btnAdd = new JButton("Add");
-        JButton btnUpdate = new JButton("Update");
-        JButton btnFirst = new JButton("First");
-        JButton btnPrevious = new JButton("Previous");
-        JButton btnNext = new JButton("Next");
-        JButton btnLast = new JButton("Last");
         buttonsMap = new HashMap<>();
         buttonsMap.put("Add", btnAdd);
         buttonsMap.put("Update", btnUpdate);
@@ -86,7 +91,7 @@ public class AddOrUpdate extends JFrame {
         buttonsMap.put("Next", btnNext);
         buttonsMap.put("Last", btnLast);
 
-        // Set bounds
+        // Set bounds & properties
         lblProductId.setBounds(30, 20, 100, 20);
         lblName.setBounds(30, 60, 100, 20);
         lblDescription.setBounds(30, 100, 100, 20);
@@ -124,7 +129,6 @@ public class AddOrUpdate extends JFrame {
     }
 
     private void setFrameConfig() {
-
         // Configure the frame
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         int WINDOW_WIDTH = 650;
@@ -161,13 +165,14 @@ public class AddOrUpdate extends JFrame {
 
         buttonsMap.get("Add").addActionListener(evt -> {
 
+            // Get the values from text fields
             String name = textFieldsMap.get("Name").getText();
             String description = txtDescription.getText();
             int productId = Integer.parseInt(textFieldsMap.get("Product ID").getText());
             int quantity = Integer.parseInt(textFieldsMap.get("Quantity in hand").getText());
             double price = Double.parseDouble(textFieldsMap.get("Unit Price").getText());
 
-            // Check if there is duplicate id (in-place search)
+            // Check if there is duplicate id (by searching the position of the queried product id, i.e., in-place search algorithm)
             int pos = -1;
             try {
                 pos = ProductFileHandler.getProductBytePosition(productId);
@@ -175,6 +180,7 @@ public class AddOrUpdate extends JFrame {
                 throw new RuntimeException(e);
             }
 
+            // If no position found, then pos = -1
             if (pos != -1) {
                 JOptionPane.showMessageDialog(this, "Product ID already exists");
                 return;
@@ -201,12 +207,14 @@ public class AddOrUpdate extends JFrame {
 
         buttonsMap.get("Update").addActionListener(evt -> {
 
+            // Get the values from text fields
             int productId = Integer.parseInt(textFieldsMap.get("Product ID").getText());
             String name = textFieldsMap.get("Name").getText();
             String description = txtDescription.getText();
             int quantity = Integer.parseInt(textFieldsMap.get("Quantity in hand").getText());
             double price = Double.parseDouble(textFieldsMap.get("Unit Price").getText());
 
+            // Load all data into memory, perform the updates, and then write everything back to the file
             try {
                 ArrayList<Product> products = ProductFileHandler.getProductListFromFile();
                 Product productToUpdate = findProductInList(products, productId);
@@ -257,7 +265,6 @@ public class AddOrUpdate extends JFrame {
             try {
                 previousProduct();
             } catch (Exception e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             displayRecord();
@@ -284,7 +291,6 @@ public class AddOrUpdate extends JFrame {
             try {
                 lastProduct();
             } catch (IOException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
             displayRecord();
@@ -347,10 +353,5 @@ public class AddOrUpdate extends JFrame {
             }
         }
         return null;
-    }
-
-    // Main method for testing
-    public static void main(String[] args) throws IOException {
-        AddOrUpdate addOrUpdate = new AddOrUpdate();
     }
 }

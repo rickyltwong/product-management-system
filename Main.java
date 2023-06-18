@@ -4,18 +4,17 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.*;
 
 /*
  * Student Name: Ricky Wong
  * Student ID: N01581738
  * Section: IGA
- * Logic: Class for the main GUI
+ * Logic: This class is responsible for creating the main GUI including the menu,
+ * attaching event listeners to the menu items.
  */
 
 public class Main extends JFrame {
-
 	private static final String STR_MANIPULATE = "Add/Update";
 	private static final String STR_QUERY = "Find/Display";
 
@@ -40,24 +39,27 @@ public class Main extends JFrame {
 	}
 
 	private void createUI() {
+		// Create the frame
 		String title = "Product Main GUI";
 		frame = new JFrame(title);
-		mb = new JMenuBar();
 
+		// Create the menu bar, menu, and menu items
+		mb = new JMenuBar();
 		menuFile = new JMenu("File");
 		itemExit = new JMenuItem("Exit");
 		menuFile.add(itemExit);
-
 		menuProduct = new JMenu("Product");
 		itemAddOrUpdate = new JMenuItem(STR_MANIPULATE);
 		itemFindOrDisplay = new JMenuItem(STR_QUERY);
 		menuProduct.add(itemAddOrUpdate);
 		menuProduct.add(itemFindOrDisplay);
 
+		// Create the main text
 		mainText = new JLabel("Product Management System");
 		mainText.setFont(new Font("Courier", Font.BOLD, 24));
 		mainText.setHorizontalAlignment(JLabel.CENTER);
 
+		// Add the components to the frame
 		mb.add(menuFile);
 		mb.add(menuProduct);
 		frame.setJMenuBar(mb);
@@ -66,7 +68,6 @@ public class Main extends JFrame {
 	}
 
 	private void setFrameConfig() {
-
 		// Configure the frame
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		int WINDOW_WIDTH = 500;
@@ -83,10 +84,15 @@ public class Main extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+
+				// Perform the action based on the menu item selected
 				JMenuItem source = (JMenuItem) e.getSource();
 				String text = source.getText();
 
+				// Exit the program
 				if ("Exit".equals(text)) System.exit(0);
+
+				// Open the other Window
 				else if (STR_MANIPULATE.equals(text)) {
 					frame.dispose();
 					new AddOrUpdate();
@@ -99,6 +105,7 @@ public class Main extends JFrame {
 
 		};
 
+		// Attach the event listeners
 		itemExit.addActionListener(event);
 		itemAddOrUpdate.addActionListener(event);
 		itemFindOrDisplay.addActionListener(event);

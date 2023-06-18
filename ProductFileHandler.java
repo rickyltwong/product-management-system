@@ -7,20 +7,16 @@ import java.util.ArrayList;
  * Student Name: Emma Zhang, Xiaoying Bian, Ricky Wong
  * Student ID: N01587845, N01553051, N01581738
  * Section: IGA
- * Logic: This class is the helper class for file operations.
+ * Logic: This class is the helper class for binary file IO operations.
  */
 public final class ProductFileHandler {
 
-    private ProductFileHandler() {
-    }
-
     // File path: Please change the path to your own path
     private static final String filePath = "src\\assignment2\\products.dat";
-    private int currentProduct;
-
     private static final File file = new File(filePath);
-
     private static final int RECORD_SIZE = 140;
+
+    private ProductFileHandler() {}
 
     public static DataOutputStream getDataOutputStreamWithAppend() throws IOException {
         return new DataOutputStream(new FileOutputStream(file, true));
@@ -44,6 +40,7 @@ public final class ProductFileHandler {
     // Write the product into file
     private static void writeProductToStream(DataOutputStream dos, Product product) throws IOException {
         dos.writeInt(product.getId());
+        // Pad the name and description to the defined length
         String paddedName = String.format("%1$-" + 20 + "s", product.getName());
         String paddedDescription = String.format("%1$-" + 100 + "s", product.getDescription());
         dos.writeUTF(paddedName);
@@ -75,7 +72,7 @@ public final class ProductFileHandler {
         return product;
     }
 
-    // Check if there is duplicate Product ID in the file (checking productID in an arraylist)
+    // Check if there is a duplicate Product ID in the file (checking productID in an arraylist)
     public static boolean hasDuplicateId(int productId) throws IOException {
         ArrayList<Product> productList = getProductListFromFile();
         for (Product product : productList) {
@@ -85,6 +82,11 @@ public final class ProductFileHandler {
         }
         return false;
     }
+
+    /*
+     * The above method and the following method are both used to check if there is a duplicate Product ID in the file.
+     * The above method is checking productID in an arraylist, while the following method is checking productID in the file.
+     */
 
     // Get the position of the product using Product ID (checking productID in the file)
     public static int getProductBytePosition(int targetProductId) throws IOException {
@@ -105,6 +107,7 @@ public final class ProductFileHandler {
         return -1; // Return -1 if the product is not found
     }
 
+    // Skip the product in the file
     private static void skipProduct(DataInputStream dis) throws IOException {
         /*
          * Skip name 22 bytes (2 bytes of length infomration + 20 bytes of name)
@@ -125,7 +128,6 @@ public final class ProductFileHandler {
 
     public static int getProductsCount() {
         int productsCount;
-
         File file = new File(filePath);
         productsCount = (int) (file.length() / RECORD_SIZE);
         return productsCount;
