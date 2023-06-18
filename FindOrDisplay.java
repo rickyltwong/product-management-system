@@ -98,17 +98,49 @@ public class FindOrDisplay {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				double priceFrom=Double.parseDouble(PriceRangeFrom.getText());
-				double priceTo=Double.parseDouble(PriceRangeTo.getText());
-				List<Product> products=new ArrayList<>();
-				try {
-					products=DisplayByRange(priceFrom,priceTo);
-					for (Product product:products)
-						TextDisplay.append(product.toString()+"\n");
+				if (PriceRangeButton.isSelected()) {
+					if (PriceRangeFrom.getText().isEmpty() || PriceRangeTo.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(frame, "Please enter price range.");
+						return;
+					}
+					double priceFrom=Double.parseDouble(PriceRangeFrom.getText());
+					double priceTo=Double.parseDouble(PriceRangeTo.getText());
+					List<Product> products=new ArrayList<>();
+					try {
+						products=DisplayByRange(priceFrom,priceTo);
+						for (Product product:products)
+							TextDisplay.append(product.toString()+"\n");
 					
-				} catch (ClassNotFoundException | IOException e1) {
+					} catch (ClassNotFoundException | IOException e1) {
 					// TODO Auto-generated catch block
-					e1.printStackTrace();
+						e1.printStackTrace();
+					}
+				}else  if (KeywordButton.isSelected()) {
+					if (KeywordText.getText().isEmpty()){
+						JOptionPane.showMessageDialog(frame, "Please enter a product name.");
+						return;
+					}
+					String name= KeywordText.getText();
+					try {
+						Product product=DisplayByName(name);
+						if (product==null)
+							TextDisplay.setText("No item in the list.");
+						else
+							TextDisplay.append(product.toString()+"\n");
+					} catch (ClassNotFoundException | IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}else if (AllButton.isSelected()) {
+					try {
+						List<Product> products=ProductFileHandler.getProductListFromFile();
+						for (Product product:products)
+							TextDisplay.append(product.toString()+"\n");
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
 				}
 			}
 			
@@ -126,24 +158,6 @@ public class FindOrDisplay {
 		KeywordPanel.add(KeywordButton);
 		KeywordPanel.add(KeywordText);
 		
-		ActionListener a1=new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String name= KeywordText.getText();
-				try {
-					Product product=DisplayByName(name);
-					if (product==null)
-						TextDisplay.setText("No item in the list.");
-					else
-						TextDisplay.append(product.toString()+"\n");
-				} catch (ClassNotFoundException | IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-			}
-		};
-		KeywordText.addActionListener(a1);
 	}
 	
 	public void CreateAll() {
@@ -151,28 +165,15 @@ public class FindOrDisplay {
 		AllButton=new JRadioButton("All");
 		
 		AllPanel.add(AllButton);
-		ActionListener a1=new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					List<Product> products=ProductFileHandler.getProductListFromFile();
-					for (Product product:products)
-						TextDisplay.append(product.toString()+"\n");
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
 		
-		};
-		AllButton.addActionListener(a1);
 	}
 	
 	public void CreateTextArea() {
 		TextDisplayPanel = new JPanel(new BorderLayout());
 	    TextDisplay = new JTextArea();
 	    TextDisplay.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-	    TextDisplayPanel.add(TextDisplay, BorderLayout.CENTER);
+	    JScrollPane scrollPane=new JScrollPane(TextDisplay);
+	    TextDisplayPanel.add(scrollPane, BorderLayout.CENTER);
 		
 	}
 	// DisplayByRange
