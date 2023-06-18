@@ -9,10 +9,11 @@ import java.util.List;
 
 import javax.swing.*;
 
-public class FindOrDisplay extends JFrame{
+public class FindOrDisplay {
 	
-	private static String TITLE = "Find/Display Products";
-	
+	private static int WINDOW_HEIGHT = 400;
+	private static int WINDOW_WIDTH = 500;
+	JFrame frame;
 	private JPanel PriceRangePanel;
 	private JPanel KeywordPanel;
 	private JPanel AllPanel;
@@ -28,12 +29,15 @@ public class FindOrDisplay extends JFrame{
 	private JTextField PriceRangeTo;
 	private JTextField KeywordText;
 	private JTextArea TextDisplay;
+	private ActionListener ClearListener; 
 	
 	public FindOrDisplay() {
 		
-		setTitle(TITLE);
-		Container contentPane = getContentPane();
-		setLayout(new BoxLayout(contentPane,BoxLayout.Y_AXIS));
+		frame=new JFrame("Find/Display Products");
+		JPanel panel=new JPanel();
+		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
+		frame.setContentPane(panel);
+		setFrameConfig();
 		CreatPriceRange();
 		CreateKeyword();
 		CreateAll();
@@ -44,16 +48,43 @@ public class FindOrDisplay extends JFrame{
 		group.add(KeywordButton);
 		group.add(PriceRangeButton);
 		
-		add(PriceRangePanel);
-		add(KeywordPanel);
-		add(AllPanel);
-		add(TextDisplayPanel);
+		frame.add(PriceRangePanel);
+		frame.add(KeywordPanel);
+		frame.add(AllPanel);
+		frame.add(TextDisplayPanel);
+		
+		class clearListener implements ActionListener{
+			public void actionPerformed(ActionEvent e) {
+				TextDisplay.setText("");
+				PriceRangeFrom.setText("");
+				PriceRangeTo.setText("");
+				KeywordText.setText("");
+			}
+			
+		}
+		ClearListener=new clearListener();
+		PriceRangeButton.addActionListener(ClearListener);
+		KeywordButton.addActionListener(ClearListener);
+		AllButton.addActionListener(ClearListener);
+		
+	}
+	
+	public void setFrameConfig() {
+
+		// Configure the frame
+		
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		frame.setLocationRelativeTo(null);
+		frame.setResizable(true);
+		frame.setVisible(true);
 	}
 	
 	
 	public void CreatPriceRange() {
 		PriceRangePanel=new JPanel(new FlowLayout(FlowLayout.LEFT));
 		PriceRangeButton=new JRadioButton("Price Range");
+	
 		PriceRangeFrom=new JTextField(8);
 		PriceRangeTo=new JTextField(8);
 		FindDisplay=new JButton("Find/Display");
@@ -89,6 +120,7 @@ public class FindOrDisplay extends JFrame{
 	public void CreateKeyword() {
 		KeywordPanel=new JPanel(new FlowLayout(FlowLayout.LEFT));
 		KeywordButton=new JRadioButton("Keyword");
+		
 		KeywordText=new JTextField(8);
 		
 		KeywordPanel.add(KeywordButton);
@@ -111,15 +143,14 @@ public class FindOrDisplay extends JFrame{
 				
 			}
 		};
-		
 		KeywordText.addActionListener(a1);
 	}
 	
 	public void CreateAll() {
 		AllPanel=new JPanel(new FlowLayout(FlowLayout.LEFT));
 		AllButton=new JRadioButton("All");
-		AllPanel.add(AllButton);
 		
+		AllPanel.add(AllButton);
 		ActionListener a1=new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
